@@ -4,7 +4,7 @@
 
 **High-Performance Voice Conversion — Now with a Stunning Minimalist UI**
 
-[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/MIGHTYBIT/NEWRVC/blob/main/NewRVC_Colab.ipynb)
+[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/DDME36/NEWRVC/blob/main/NewRVC_Colab.ipynb)
 
 </div>
 
@@ -66,7 +66,7 @@
 
 Don't have a strong GPU? Run NEWRVC directly in the cloud in just one click:
 
-[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/MIGHTYBIT/NEWRVC/blob/main/NewRVC_Colab.ipynb)
+[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/DDME36/NEWRVC/blob/main/NewRVC_Colab.ipynb)
 
 ---
 

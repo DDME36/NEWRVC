@@ -315,6 +315,7 @@ def render_generate_tab():
                 split_audio=split, f0_autotune=at, f0_autotune_strength=1.0,
                 clean_audio=clean, clean_strength=0.3, export_format=fmt,
                 f0_file=None, embedder_model=emb,
+                embedder_model_custom=None,
             )
             return out_path
 
