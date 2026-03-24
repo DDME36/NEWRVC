@@ -20,7 +20,9 @@ NEWRVC is a high-performance, next-generation Retrieval-based Voice Conversion (
    ```
 
 ## Google Colab
-You can easily run this project on Google Colab by opening the included `NewRVC_Colab.ipynb` file.
+You can easily launch and run this project in the browser without any setup by clicking the button below:
+
+[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/DDME36/NEWRVC/blob/main/NewRVC_Colab.ipynb)
 
 ## Credits & Acknowledgements 
 This project wouldn't be possible without the incredible work from the open-source community:
