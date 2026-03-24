@@ -1,0 +1,39 @@
+# NEWRVC .gitignore
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+*.egg
+dist/
+build/
+.eggs/
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Project-specific
+workflow_output/
+*.wav
+*.mp3
+*.flac
+*.ogg
+logs/
+*.pth
+*.index
+
+# Jupyter
+.ipynb_checkpoints/

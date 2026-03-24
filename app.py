@@ -1,6 +1,5 @@
 import sys
 import os
-import asyncio
 import gradio as gr
 
 # Suppress noisy Windows ProactorEventLoop connection-reset errors.
@@ -120,4 +119,5 @@ with gr.Blocks(title="NEWRVC 🚀", theme=CodenameViolet) as app:
         settings_tab()
 
 if __name__ == "__main__":
-    app.launch(server_port=7897, inbrowser=True, share=False)
+    should_share = "--share" in sys.argv
+    app.launch(server_port=7897, inbrowser=True, share=should_share)

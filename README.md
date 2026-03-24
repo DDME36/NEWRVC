@@ -5,7 +5,7 @@ NEWRVC is a high-performance, next-generation Retrieval-based Voice Conversion (
 ## Features
 - **Advanced Vocoders & Embedders**: Native support for RingFormer, PCPH-GAN, and Spin embedders for extreme vocal clarity and performance.
 - **Auto YouTube Download**: Download and process audio directly from YouTube via the UI using `yt-dlp`.
-- **Integrated Vocal Separation**: Instantly separate vocals and instrumentals without needing external heavy tools like UVR5, powered by `python-audio-separator` (MDX Kim Vocals 2 and Demucs).
+- **Integrated Vocal Separation**: Instantly separate vocals and instrumentals without needing external heavy tools like UVR5, powered by `audio-separator` (MDX Kim Vocals 2 and Demucs).
 - **Gradio 5 UI**: A fast, responsive, and modern interface layout combining Inference, Training, and Workflows into a single smooth experience.
 
 ## Installation (Local)
