@@ -16,7 +16,7 @@ from torch.utils.checkpoint import checkpoint
 import einops
 import numpy as np
 
-from ultimate_rvc.rvc.lib.algorithm.residuals import ResBlock, ResBlock_Snake_Fused, ResBlock_SnakeBeta
+from ultimate_rvc.rvc.lib.algorithm.residuals import ResBlock, ResBlock_SnakeBeta
 from ultimate_rvc.rvc.lib.algorithm.conformer.conformer import Conformer
 
 from ultimate_rvc.rvc.lib.algorithm.conformer.stft import TorchSTFT
