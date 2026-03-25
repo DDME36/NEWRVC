@@ -133,6 +133,9 @@ class Vocoder(StrEnum):
     HIFI_GAN = "HiFi-GAN"
     MRF_HIFI_GAN = "MRF HiFi-GAN"
     REFINE_GAN = "RefineGAN"
+    RINGFORMER_V1 = "RingFormer_v1"
+    RINGFORMER_V2 = "RingFormer_v2"
+    APEX_GAN = "APEX-GAN"
 
 
 class IndexAlgorithm(StrEnum):

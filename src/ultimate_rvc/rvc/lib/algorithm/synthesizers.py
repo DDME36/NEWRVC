@@ -10,6 +10,8 @@ from ultimate_rvc.rvc.lib.algorithm.generators.hifigan import HiFiGANGenerator
 from ultimate_rvc.rvc.lib.algorithm.generators.hifigan_mrf import HiFiGANMRFGenerator
 from ultimate_rvc.rvc.lib.algorithm.generators.hifigan_nsf import HiFiGANNSFGenerator
 from ultimate_rvc.rvc.lib.algorithm.generators.refinegan import RefineGANGenerator
+from ultimate_rvc.rvc.lib.algorithm.generators.ringformer import RingFormerGenerator
+from ultimate_rvc.rvc.lib.algorithm.generators.apex_gan import APEX_GAN_Generator
 from ultimate_rvc.rvc.lib.algorithm.residuals import ResidualCouplingBlock
 
 logger = logging.getLogger(__name__)
@@ -75,6 +77,7 @@ class Synthesizer(torch.nn.Module):
         self.segment_size = segment_size
         self.use_f0 = use_f0
         self.randomized = randomized
+        self.vocoder = vocoder
 
         self.enc_p = TextEncoder(
             inter_channels,
@@ -110,6 +113,35 @@ class Synthesizer(torch.nn.Module):
                     start_channels=16,
                     num_mels=inter_channels,
                     checkpointing=checkpointing,
+                )
+            elif vocoder in ("RingFormer_v1", "RingFormer_v2"):
+                # RingFormer requires gen_istft_n_fft and gen_istft_hop_size from config
+                gen_istft_n_fft = kwargs.get("gen_istft_n_fft", 120)
+                gen_istft_hop_size = kwargs.get("gen_istft_hop_size", 30)
+                self.dec = RingFormerGenerator(
+                    initial_channel=inter_channels,
+                    resblock_kernel_sizes=resblock_kernel_sizes,
+                    resblock_dilation_sizes=resblock_dilation_sizes,
+                    upsample_rates=upsample_rates,
+                    upsample_initial_channel=upsample_initial_channel,
+                    upsample_kernel_sizes=upsample_kernel_sizes,
+                    gen_istft_n_fft=gen_istft_n_fft,
+                    gen_istft_hop_size=gen_istft_hop_size,
+                    gin_channels=gin_channels,
+                    sr=sr,
+                    harmonic_num=8,
+                    checkpointing=checkpointing,
+                )
+            elif vocoder == "APEX-GAN":
+                self.dec = APEX_GAN_Generator(
+                    initial_channel=inter_channels,
+                    resblock_kernel_sizes=resblock_kernel_sizes,
+                    resblock_dilation_sizes=resblock_dilation_sizes,
+                    upsample_rates=upsample_rates,
+                    upsample_initial_channel=upsample_initial_channel,
+                    upsample_kernel_sizes=upsample_kernel_sizes,
+                    gin_channels=gin_channels,
+                    sr=sr,
                 )
             else:
                 self.dec = HiFiGANNSFGenerator(
@@ -167,6 +199,21 @@ class Synthesizer(torch.nn.Module):
         for module in [self.dec, self.flow, self.enc_q]:
             self._remove_weight_norm_from(module)
 
+    def _decode(self, z, f0=None, g=None):
+        """Normalize decoder output across different vocoder types."""
+        if self.use_f0:
+            raw = self.dec(z, f0, g=g)
+        else:
+            raw = self.dec(z, g=g)
+
+        # RingFormer returns (waveform, spec, phase)
+        if self.vocoder in ("RingFormer_v1", "RingFormer_v2"):
+            return raw[0]
+        # APEX-GAN returns list of intermediates, last is final
+        if self.vocoder == "APEX-GAN" and isinstance(raw, list):
+            return raw[-1]
+        return raw
+
     def __prepare_scriptable__(self):
         self.remove_weight_norm()
         return self
@@ -196,15 +243,15 @@ class Synthesizer(torch.nn.Module):
                 )
                 if self.use_f0:
                     pitchf = slice_segments(pitchf, ids_slice, self.segment_size, 2)
-                    o = self.dec(z_slice, pitchf, g=g)
+                    o = self._decode(z_slice, pitchf, g=g)
                 else:
-                    o = self.dec(z_slice, g=g)
+                    o = self._decode(z_slice, g=g)
                 return o, ids_slice, x_mask, y_mask, (z, z_p, m_p, logs_p, m_q, logs_q)
             # future use for finetuning using the entire dataset each pass
             if self.use_f0:
-                o = self.dec(z, pitchf, g=g)
+                o = self._decode(z, pitchf, g=g)
             else:
-                o = self.dec(z, g=g)
+                o = self._decode(z, g=g)
             return o, None, x_mask, y_mask, (z, z_p, m_p, logs_p, m_q, logs_q)
         return None, None, x_mask, None, (None, None, m_p, logs_p, None, None)
 
@@ -241,10 +288,6 @@ class Synthesizer(torch.nn.Module):
                 nsff0 = nsff0[:, head:]
 
         z = self.flow(z_p, x_mask, g=g, reverse=True)
-        o = (
-            self.dec(z * x_mask, nsff0, g=g)
-            if self.use_f0
-            else self.dec(z * x_mask, g=g)
-        )
+        o = self._decode(z * x_mask, nsff0, g=g)
 
         return o, x_mask, (z, z_p, m_p, logs_p)
