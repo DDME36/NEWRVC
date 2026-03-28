@@ -748,7 +748,7 @@ class TrainingConfig(BaseTabConfig):
             " the training data too well and losing the ability to generalize to new"
             " data."
         ),
-        value=False,
+        value=True,
         exclude_value=True,
     )
     overtraining_threshold: SliderConfig = SliderConfig(
@@ -760,7 +760,7 @@ class TrainingConfig(BaseTabConfig):
         value=50,
         minimum=1,
         maximum=100,
-        visible=False,
+        visible=True,
         step=1,
     )
     vocoder: DropdownConfig = DropdownConfig(
@@ -883,4 +883,37 @@ class TrainingConfig(BaseTabConfig):
             " what your GPU can normally accommodate."
         ),
         value=False,
+    )
+    learning_rate: SliderConfig = SliderConfig(
+        label="Learning rate",
+        info=(
+            "Controls how quickly the model learns. Lower values"
+            " (1e-5) train more carefully, higher values (1e-3)"
+            " train faster but risk instability. Default: 1e-4."
+        ),
+        value=1e-4,
+        minimum=1e-5,
+        maximum=1e-3,
+        step=1e-5,
+    )
+    lr_decay: SliderConfig = SliderConfig(
+        label="LR decay rate",
+        info=(
+            "How fast the learning rate decreases each epoch."
+            " Values closer to 1.0 slow the decay. Default:"
+            " 0.999875."
+        ),
+        value=0.999875,
+        minimum=0.99,
+        maximum=1.0,
+        step=0.0001,
+    )
+    seed: NumberConfig = NumberConfig(
+        label="Random seed",
+        info=(
+            "Seed for reproducibility. Use the same seed to reproduce"
+            " training results. Default: 1234."
+        ),
+        value=1234,
+        precision=0,
     )

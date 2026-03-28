@@ -9,6 +9,7 @@ from typing import TYPE_CHECKING
 
 import lazy_loader as lazy
 
+import logging
 import shutil
 from multiprocessing import cpu_count
 
@@ -40,6 +41,35 @@ if TYPE_CHECKING:
     from ultimate_rvc.typing_extra import StrPath
 else:
     static_ffmpeg = lazy.load("static_ffmpeg")
+
+logger = logging.getLogger(__name__)
+
+
+def _get_dataset_duration_minutes(sliced_dir: Path) -> float:
+    """
+    Calculate total duration of sliced audio files in minutes.
+
+    Parameters
+    ----------
+    sliced_dir : Path
+        Path to directory containing sliced .wav files.
+
+    Returns
+    -------
+    float
+        Total duration in minutes.
+
+    """
+    import soundfile as sf  # noqa: PLC0415
+
+    total_seconds = 0.0
+    for wav_file in sliced_dir.glob("*.wav"):
+        try:
+            info = sf.info(str(wav_file))
+            total_seconds += info.duration
+        except Exception:  # noqa: BLE001
+            continue
+    return total_seconds / 60.0
 
 
 def populate_dataset(name: str, audio_files: Sequence[StrPath]) -> Path:
@@ -201,3 +231,31 @@ def preprocess_dataset(
         overlap_len,
         normalization_mode,
     )
+
+    # Dataset duration analysis and warnings
+    sliced_dir = model_path / "sliced_audios"
+    if sliced_dir.is_dir():
+        duration_min = _get_dataset_duration_minutes(sliced_dir)
+        num_clips = len(list(sliced_dir.glob("*.wav")))
+        logger.info(
+            "Dataset '%s': %d clips, %.1f minutes total",
+            model_name,
+            num_clips,
+            duration_min,
+        )
+        if duration_min < 2.0:
+            logger.warning(
+                "Dataset is very short (%.1f min). At least 10"
+                " minutes of clean audio is recommended for"
+                " acceptable results. Training may produce"
+                " poor quality output.",
+                duration_min,
+            )
+        elif duration_min < 10.0:
+            logger.warning(
+                "Dataset is short (%.1f min). 10-60 minutes"
+                " of clean audio is recommended for best"
+                " results. Consider adding more data.",
+                duration_min,
+            )
+

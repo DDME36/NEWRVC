@@ -165,6 +165,9 @@ def run_training(
     precision: PrecisionType = PrecisionType.FP32,
     preload_dataset: bool = False,
     reduce_memory_usage: bool = False,
+    learning_rate: float | None = None,
+    lr_decay: float | None = None,
+    seed: int | None = None,
 ) -> list[str] | None:
     """
 
@@ -249,6 +252,14 @@ def run_training(
         speed by enabling activation checkpointing. This is useful for
         GPUs with limited memory (e.g., <6GB VRAM) or when training with
         a batch size larger than what your GPU can normally accommodate.
+    learning_rate : float, optional
+        Override default learning rate (1e-4). Lower values train
+        more carefully, higher values train faster but may diverge.
+    lr_decay : float, optional
+        Override default learning rate decay per epoch (0.999875).
+        Values closer to 1.0 decay slower.
+    seed : int, optional
+        Override default random seed (1234) for reproducibility.
 
     Returns
     -------
@@ -322,6 +333,9 @@ def run_training(
         device_type,
         device_ids,
         precision,
+        learning_rate=learning_rate,
+        lr_decay=lr_decay,
+        seed=seed,
     )
 
     model_file = model_path / f"{model_name}_best.pth"

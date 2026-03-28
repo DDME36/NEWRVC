@@ -5,6 +5,7 @@ import numpy as np
 import torch
 import torch.utils.data
 
+from ultimate_rvc.rvc.train.augmentation import TrainingAugmentor
 from ultimate_rvc.rvc.train.mel_processing import spectrogram_torch
 from ultimate_rvc.rvc.train.utils import load_filepaths_and_text, load_wav_to_torch
 
@@ -28,6 +29,9 @@ class TextAudioLoaderMultiNSFsid(torch.utils.data.Dataset):
         self.sample_rate = hparams.sample_rate
         self.min_text_len = getattr(hparams, "min_text_len", 1)
         self.max_text_len = getattr(hparams, "max_text_len", 5000)
+        # Data augmentation
+        aug_prob = getattr(hparams, "augmentation_probability", 0.0)
+        self.augmentor = TrainingAugmentor(probability=aug_prob) if aug_prob > 0 else None
         self._filter()
 
     def _filter(self):
@@ -156,6 +160,20 @@ class TextAudioLoaderMultiNSFsid(torch.utils.data.Dataset):
             )
             spec = torch.squeeze(spec, 0)
             torch.save(spec, spec_filename, _use_new_zipfile_serialization=False)
+
+        # Apply augmentation to waveform (spec is recomputed from augmented wav)
+        if self.augmentor is not None:
+            audio_norm = self.augmentor(audio_norm)
+            # Recompute spectrogram from augmented audio
+            spec = spectrogram_torch(
+                audio_norm,
+                self.filter_length,
+                self.hop_length,
+                self.win_length,
+                center=False,
+            )
+            spec = torch.squeeze(spec, 0)
+
         return spec, audio_norm
 
     def __getitem__(self, index):

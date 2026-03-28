@@ -428,6 +428,7 @@ def _render_step_3(total_config: TotalConfig) -> None:
             _render_step_3_algorithmic_settings(tab_config)
             _render_step_3_data_storage_settings(tab_config)
             _render_step_3_device_settings(tab_config)
+            _render_step_3_advanced_settings(tab_config)
 
         with gr.Row(equal_height=True):
             reset_train_btn = gr.Button("Reset options", variant="secondary", scale=2)
@@ -468,6 +469,9 @@ def _render_step_3(total_config: TotalConfig) -> None:
                 tab_config.precision.instance,
                 tab_config.preload_dataset.instance,
                 tab_config.reduce_memory_usage.instance,
+                tab_config.learning_rate.instance,
+                tab_config.lr_decay.instance,
+                tab_config.seed.instance,
             ],
             outputs=voice_model_files,
             show_progress_on=train_msg,
@@ -521,6 +525,9 @@ def _render_step_3(total_config: TotalConfig) -> None:
                 tab_config.precision.value,
                 tab_config.preload_dataset.value,
                 tab_config.reduce_memory_usage.value,
+                tab_config.learning_rate.value,
+                tab_config.lr_decay.value,
+                tab_config.seed.value,
             ],
             outputs=[
                 tab_config.num_epochs.instance,
@@ -540,6 +547,9 @@ def _render_step_3(total_config: TotalConfig) -> None:
                 tab_config.precision.instance,
                 tab_config.preload_dataset.instance,
                 tab_config.reduce_memory_usage.instance,
+                tab_config.learning_rate.instance,
+                tab_config.lr_decay.instance,
+                tab_config.seed.instance,
             ],
             show_progress="hidden",
         )
@@ -620,6 +630,15 @@ def _render_step_3_device_settings(tab_config: MultiStepTrainingConfig) -> None:
         with gr.Row():
             tab_config.preload_dataset.instantiate()
             tab_config.reduce_memory_usage.instantiate()
+
+
+def _render_step_3_advanced_settings(tab_config: MultiStepTrainingConfig) -> None:
+    with gr.Accordion("Advanced training", open=False):
+        with gr.Row():
+            tab_config.learning_rate.instantiate()
+            tab_config.lr_decay.instantiate()
+        with gr.Row():
+            tab_config.seed.instantiate()
 
 
 def _toggle_dataset_input(

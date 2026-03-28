@@ -6,6 +6,7 @@ import os
 import pathlib
 import shutil
 import signal
+import socket
 import sys
 from collections import deque
 from random import randint, shuffle
@@ -83,6 +84,28 @@ avg_losses = {
 }
 
 
+def find_free_port() -> int:
+    """Find a free port that is not reserved by the OS.
+
+    Uses socket binding to ensure port is actually available,
+    preventing Windows permission errors (errno 10013) with
+    reserved ports.
+
+    """
+    for _ in range(20):
+        port = randint(29500, 49999)
+        try:
+            with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+                s.bind(("", port))
+                return port
+        except OSError:
+            continue
+    # Fallback: let the OS assign a port
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+        s.bind(("", 0))
+        return s.getsockname()[1]
+
+
 class EpochRecorder:
     """
     Records the time elapsed per epoch.
@@ -123,6 +146,9 @@ def main(
     device_type: str,
     gpus: set[int] | None,
     precision: str = "fp32",
+    learning_rate: float | None = None,
+    lr_decay: float | None = None,
+    seed: int | None = None,
 ) -> None:
     """
     Start the training process.
@@ -151,6 +177,15 @@ def main(
             config_save_path,
         )
         sys.exit(1)
+
+    # Override config with user-specified values
+    if learning_rate is not None:
+        config.train.learning_rate = learning_rate
+    if lr_decay is not None:
+        config.train.lr_decay = lr_decay
+    if seed is not None:
+        config.train.seed = seed
+
     sample_rate = config.data.sample_rate if sample_rate is None else sample_rate
 
     if (
@@ -170,7 +205,7 @@ def main(
     # master node is localhost because we are running on a single local
     # machine. master port is randomly selected
     os.environ["MASTER_ADDR"] = "localhost"
-    os.environ["MASTER_PORT"] = str(randint(20000, 55555))
+    os.environ["MASTER_PORT"] = str(find_free_port())
     logger.info("MASTER_PORT: %s", os.environ["MASTER_PORT"])
     # Check sample rate
     wavs = glob.glob(
