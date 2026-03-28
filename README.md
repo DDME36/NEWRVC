@@ -5,7 +5,6 @@
 **High-Performance AI Voice Conversion — Powered by Ultimate RVC Architecture**
 
 [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/DDME36/NEWRVC/blob/main/NewRVC_Colab.ipynb)
-[![Train In Colab](https://img.shields.io/badge/🎯_Training_Notebook-F9AB00?style=for-the-badge&logo=googlecolab&logoColor=white)](https://colab.research.google.com/github/DDME36/NEWRVC/blob/main/NewRVC_Training.ipynb)
 
 </div>
 
@@ -42,25 +41,15 @@ A meticulously crafted `#ef4444` red accent theme with Google's Asap font — pr
 
 ## ☁️ Google Colab
 
-Don't have a strong GPU? Run New RVC directly in the cloud:
+## ☁️ Google Colab
+
+Don't have a strong GPU? Run New RVC directly in the cloud. Our core engine has been deeply optimized for Colab's 2-vCPU architecture, guaranteeing **lightning fast training speeds** directly from the UI without any dataloader bottlenecks!
 
 [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/DDME36/NEWRVC/blob/main/NewRVC_Colab.ipynb)
 
-## 🎯 Training Notebook (Recommended for Training)
+## 🎯 Voice Model Training (Gradio UI)
 
-For **dedicated voice model training**, use the standalone training notebook instead of the Gradio UI.
-It calls the training functions directly — no UI overhead, no event loop — resulting in **significantly faster training**:
-
-[![Open Training Notebook](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/DDME36/NEWRVC/blob/main/NewRVC_Training.ipynb)
-
-### Why use the Training Notebook?
-
-| | Gradio UI | Training Notebook |
-|---|-----------|-------------------|
-| **Speed** | Slower (UI rendering, websocket) | ⚡ Direct function calls |
-| **Hyperparameters** | Limited controls | Full control (LR, decay, seed) |
-| **Monitoring** | Log output only | TensorBoard integration |
-| **VRAM** | Higher (UI + model) | Lower (model only) |
+You can train professional-grade voice models directly inside the Gradio UI. The interface provides full access to advanced hyperparameters like Learning Rate, LR Decay, Precision (FP16/BF16), and Vocoder selection.
 
 ### Recommended Settings
 
