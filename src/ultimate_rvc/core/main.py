@@ -9,6 +9,7 @@ from typing import TYPE_CHECKING
 
 import lazy_loader as lazy
 
+import os
 from pathlib import Path
 
 from rich import print as rprint
@@ -57,8 +58,9 @@ def initialize() -> None:
         # NOTE we only add_paths so that sox
         # binaries are downloaded as part of initialization.
         static_sox.add_paths(weak=True)
-        download_sample_models()
-        initialize_audio_separator()
+        if os.environ.get("URVC_TRAIN_ONLY") != "1":
+            download_sample_models()
+            initialize_audio_separator()
         FLAG_FILE.touch()
 
 
